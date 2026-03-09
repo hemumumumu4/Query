@@ -13,6 +13,9 @@ public class GetProjectResponse
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string? Description { get; set; }
+    public string? SchemaContextJson { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }
 
 public class GetProjectEndpoint : Endpoint<GetProjectRequest, GetProjectResponse>
@@ -44,7 +47,10 @@ public class GetProjectEndpoint : Endpoint<GetProjectRequest, GetProjectResponse
         {
             Id = project.Id,
             Name = project.Name,
-            Description = project.Description
+            Description = project.Description,
+            SchemaContextJson = project.SchemaContextJson,
+            CreatedAt = project.CreatedAt,
+            UpdatedAt = project.UpdatedAt
         }, ct);
     }
 }
