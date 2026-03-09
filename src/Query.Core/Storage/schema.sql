@@ -5,7 +5,9 @@ CREATE TABLE IF NOT EXISTS projects (
     name            TEXT NOT NULL,
     description     TEXT,
     schema_context_json TEXT,
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    deleted_at      TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS conversations (
