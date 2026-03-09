@@ -1,0 +1,41 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install -g @anthropic-ai/claude-code)",
+      "Bash(claude --version)",
+      "Bash(npm search obra-superpowers)",
+      "Bash(gh repo view obra/superpowers --json description,readme)",
+      "WebFetch(domain:github.com)",
+      "Bash(claude /plugin marketplace add obra/superpowers-marketplace)",
+      "Bash(dotnet new sln -n Query)",
+      "Bash(dotnet new classlib -n Query.Core -o src/Query.Core --framework net9.0)",
+      "Bash(dotnet new web -n Query.Api -o src/Query.Api --framework net9.0)",
+      "Bash(dotnet new xunit -n Query.Core.Tests -o tests/Query.Core.Tests --framework net9.0)",
+      "Bash(dotnet new xunit -n Query.Api.Tests -o tests/Query.Api.Tests --framework net9.0)",
+      "Bash(dotnet sln add src/Query.Core src/Query.Api tests/Query.Core.Tests tests/Query.Api.Tests)",
+      "Bash(dotnet add package FluentValidation)",
+      "Bash(dotnet add package Pidgin)",
+      "Bash(dotnet add package SqlKata)",
+      "Bash(dotnet add package SqlKata.Execution)",
+      "Bash(dotnet add package Dapper)",
+      "Bash(dotnet add package Microsoft.Data.SqlClient)",
+      "Bash(dotnet add package Npgsql)",
+      "Bash(dotnet add package MySqlConnector)",
+      "Bash(dotnet add package Oracle.ManagedDataAccess.Core)",
+      "Bash(dotnet add package System.IdentityModel.Tokens.Jwt)",
+      "Bash(dotnet add package YamlDotNet)",
+      "Bash(dotnet add package Markdig)",
+      "Bash(dotnet list package)",
+      "Bash(dotnet add package FastEndpoints)",
+      "Bash(dotnet add package FastEndpoints.Swagger)",
+      "Bash(dotnet add reference ../Query.Core)",
+      "Bash(dotnet add package FluentAssertions)",
+      "Bash(dotnet add package Moq)",
+      "Bash(dotnet add reference ../../src/Query.Core)",
+      "Bash(dotnet add package FastEndpoints.Testing)",
+      "Bash(dotnet add reference ../../src/Query.Api)",
+      "Bash(dotnet build)",
+      "Bash(dotnet new sln -n Query --force)"
+    ]
+  }
+}
