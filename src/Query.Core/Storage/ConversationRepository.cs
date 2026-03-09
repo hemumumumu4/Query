@@ -35,6 +35,12 @@ public class ConversationRepository : IConversationRepository
         await _connection.ExecuteAsync(sql, new { Id = id, State = state, UpdatedAt = DateTime.UtcNow });
     }
 
+    public async Task UpdateStateAndSpecAsync(Guid id, string state, string? specJson)
+    {
+        const string sql = "UPDATE conversations SET state = @State, current_spec_json = @CurrentSpecJson, updated_at = @UpdatedAt WHERE id = @Id;";
+        await _connection.ExecuteAsync(sql, new { Id = id, State = state, CurrentSpecJson = specJson, UpdatedAt = DateTime.UtcNow });
+    }
+
     public async Task AddTurnAsync(ConversationTurnRecord turn)
     {
         const string sql = """
