@@ -48,7 +48,7 @@ public partial class InfixFormulaHandler : IFormulaHandler
 
     private static readonly Parser<char, FormulaNode> ParenExpr =
         Tok('(')
-            .Then(Rec(() => ExprParser))
+            .Then(Rec(() => ExprParser!))
             .Before(Tok(')'));
 
     private static readonly Parser<char, FormulaNode> Atom =
