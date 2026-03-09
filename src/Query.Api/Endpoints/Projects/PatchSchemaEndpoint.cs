@@ -1,17 +1,10 @@
-using System.Text.Json;
 using System.Text.Json.Nodes;
 using FastEndpoints;
 using Query.Core.Storage;
 
 namespace Query.Api.Endpoints.Projects;
 
-public class PatchSchemaRequest
-{
-    public Guid Id { get; set; }
-    public JsonElement Body { get; set; }
-}
-
-public class PatchSchemaEndpoint : Endpoint<PatchSchemaRequest>
+public class PatchSchemaEndpoint : EndpointWithoutRequest
 {
     private readonly IProjectRepository _projects;
 
@@ -26,20 +19,25 @@ public class PatchSchemaEndpoint : Endpoint<PatchSchemaRequest>
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(PatchSchemaRequest req, CancellationToken ct)
+    public override async Task HandleAsync(CancellationToken ct)
     {
-        var project = await _projects.GetByIdAsync(req.Id);
+        var id = Route<Guid>("Id");
+
+        var project = await _projects.GetByIdAsync(id);
         if (project is null)
         {
             await Send.NotFoundAsync(ct);
             return;
         }
 
+        using var reader = new StreamReader(HttpContext.Request.Body);
+        var body = await reader.ReadToEndAsync(ct);
+
         var existing = string.IsNullOrEmpty(project.SchemaContextJson)
             ? new JsonObject()
             : JsonNode.Parse(project.SchemaContextJson)!.AsObject();
 
-        var patch = JsonNode.Parse(req.Body.GetRawText())!.AsObject();
+        var patch = JsonNode.Parse(body)!.AsObject();
 
         foreach (var prop in patch)
         {
@@ -47,7 +45,7 @@ public class PatchSchemaEndpoint : Endpoint<PatchSchemaRequest>
         }
 
         var merged = existing.ToJsonString();
-        await _projects.UpdateSchemaContextAsync(req.Id, merged);
+        await _projects.UpdateSchemaContextAsync(id, merged);
         await Send.NoContentAsync(ct);
     }
 }
