@@ -11,7 +11,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // FastEndpoints
 builder.Services.AddFastEndpoints();
-builder.Services.SwaggerDocument();
 
 // Database
 builder.Services.AddScoped<IDbConnection>(_ =>
@@ -45,6 +44,5 @@ builder.Services.AddHttpClient<ILLMProvider, HttpLLMProvider>(client =>
 var app = builder.Build();
 
 app.UseFastEndpoints();
-app.UseSwaggerGen();
 
 app.Run();

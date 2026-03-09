@@ -18,7 +18,7 @@ public class ConfirmSpecResponse
     public string Explanation { get; set; } = string.Empty;
     public string Compiler { get; set; } = string.Empty;
     public string Dialect { get; set; } = string.Empty;
-    public object? Spec { get; set; }
+    public string? SpecJson { get; set; }
 }
 
 public class ConfirmSpecEndpoint : Endpoint<ConfirmSpecRequest, ConfirmSpecResponse>
@@ -91,7 +91,7 @@ public class ConfirmSpecEndpoint : Endpoint<ConfirmSpecRequest, ConfirmSpecRespo
             Explanation = bundle.Explanation,
             Compiler = bundle.Compiler,
             Dialect = bundle.Dialect,
-            Spec = spec
+            SpecJson = JsonSerializer.Serialize(spec)
         }, ct);
     }
 }

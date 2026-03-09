@@ -17,7 +17,7 @@ public class SendMessageResponse
 {
     public string AssistantMessage { get; set; } = string.Empty;
     public string State { get; set; } = string.Empty;
-    public object? PartialSpec { get; set; }
+    public string? PartialSpecJson { get; set; }
 }
 
 public class SendMessageEndpoint : Endpoint<SendMessageRequest, SendMessageResponse>
@@ -100,7 +100,9 @@ public class SendMessageEndpoint : Endpoint<SendMessageRequest, SendMessageRespo
         {
             AssistantMessage = response.Message,
             State = session.State.ToString(),
-            PartialSpec = response.Spec
+            PartialSpecJson = response.Spec is not null
+                ? JsonSerializer.Serialize(response.Spec)
+                : null
         }, ct);
     }
 }
