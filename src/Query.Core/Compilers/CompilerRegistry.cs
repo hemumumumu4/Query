@@ -23,6 +23,8 @@ public class CompilerRegistry
     {
         var registry = new CompilerRegistry();
         registry.Register("sql", new SQLCompiler(sqlDialect));
+        registry.Register("markdown", new MarkdownCompiler());
+        registry.Register("html", new HtmlCompiler());
         return registry;
     }
 }
