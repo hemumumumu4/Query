@@ -1,11 +1,13 @@
 using System.Data;
+using Dapper;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Npgsql;
 using Query.Core.Compilers;
-using Query.Core.Ingestion;
 using Query.Core.LLM;
 using Query.Core.Storage;
+
+DefaultTypeMap.MatchNamesWithUnderscores = true;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,9 +21,6 @@ builder.Services.AddScoped<IDbConnection>(_ =>
 // Repositories
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
-
-// Schema ingestion
-builder.Services.AddTransient<SchemaContextBuilder>();
 
 // Compiler registry
 var sqlDialect = builder.Configuration.GetValue<string>("SqlDialect") ?? "postgres";
