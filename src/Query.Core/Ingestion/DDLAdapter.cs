@@ -6,7 +6,7 @@ namespace Query.Core.Ingestion;
 public class DDLAdapter : ISchemaAdapter
 {
     private static readonly Regex TableRegex = new(
-        @"CREATE\s+TABLE\s+(\w+)\s*\(([^;]+)\)",
+        @"CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(\w+)\s*\(([^;]+)\)",
         RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     private static readonly Regex ColumnRegex = new(
@@ -15,6 +15,10 @@ public class DDLAdapter : ISchemaAdapter
 
     private static readonly Regex FkRegex = new(
         @"FOREIGN\s+KEY\s*\((\w+)\)\s+REFERENCES\s+(\w+)\s*\((\w+)\)",
+        RegexOptions.IgnoreCase);
+
+    private static readonly Regex InlineFkRegex = new(
+        @"^\s*(\w+)\s+\w+.*REFERENCES\s+(\w+)\s*\((\w+)\)",
         RegexOptions.IgnoreCase);
 
     public Task<SchemaContext> IngestAsync(string ddl)
@@ -46,6 +50,17 @@ public class DDLAdapter : ISchemaAdapter
 
                 if (Regex.IsMatch(trimmed, @"^\s*(PRIMARY|UNIQUE|CHECK|CONSTRAINT|INDEX)", RegexOptions.IgnoreCase))
                     continue;
+
+                // Check for inline FK (e.g. project_id UUID NOT NULL REFERENCES projects(id))
+                var inlineFk = InlineFkRegex.Match(trimmed);
+                if (inlineFk.Success)
+                {
+                    relationships.Add(new RelationshipDef(
+                        tableName,
+                        inlineFk.Groups[1].Value,
+                        inlineFk.Groups[2].Value,
+                        inlineFk.Groups[3].Value));
+                }
 
                 var colMatch = ColumnRegex.Match(trimmed);
                 if (colMatch.Success)
