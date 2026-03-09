@@ -1,0 +1,98 @@
+{
+  "tables": [
+    {
+      "name": "projects",
+      "description": "Analytics projects containing schema context and metadata",
+      "columns": [
+        { "name": "id", "type": "uuid", "description": "Primary key", "businessAliases": [] },
+        { "name": "name", "type": "text", "description": "Project name", "businessAliases": ["project name", "title"] },
+        { "name": "description", "type": "text", "description": "Optional project description", "businessAliases": [] },
+        { "name": "created_at", "type": "timestamptz", "description": "When the project was created", "businessAliases": ["creation date"] },
+        { "name": "updated_at", "type": "timestamptz", "description": "Last modification time", "businessAliases": ["last modified"] },
+        { "name": "deleted_at", "type": "timestamptz", "description": "Soft delete timestamp, null if active", "businessAliases": ["deletion date"] }
+      ]
+    },
+    {
+      "name": "conversations",
+      "description": "User conversation sessions linked to a project",
+      "columns": [
+        { "name": "id", "type": "uuid", "description": "Primary key", "businessAliases": [] },
+        { "name": "project_id", "type": "uuid", "description": "Foreign key to the parent project", "businessAliases": [] },
+        { "name": "user_id", "type": "text", "description": "User who started the conversation", "businessAliases": ["author", "owner"] },
+        { "name": "state", "type": "text", "description": "Conversation state (SchemaLoaded, Disambiguation, SpecConfirmed, Done)", "businessAliases": ["status"] },
+        { "name": "created_at", "type": "timestamptz", "description": "When the conversation started", "businessAliases": ["start time"] },
+        { "name": "updated_at", "type": "timestamptz", "description": "Last activity time", "businessAliases": ["last active"] }
+      ]
+    },
+    {
+      "name": "conversation_turns",
+      "description": "Individual messages within a conversation, tracking role and timing",
+      "columns": [
+        { "name": "id", "type": "uuid", "description": "Primary key", "businessAliases": [] },
+        { "name": "conversation_id", "type": "uuid", "description": "Foreign key to the parent conversation", "businessAliases": [] },
+        { "name": "role", "type": "text", "description": "Message sender role (user or assistant)", "businessAliases": ["sender"] },
+        { "name": "created_at", "type": "timestamptz", "description": "When the turn was recorded", "businessAliases": ["timestamp"] }
+      ]
+    },
+    {
+      "name": "output_bundles",
+      "description": "Compiled query outputs from confirmed conversation specs",
+      "columns": [
+        { "name": "id", "type": "uuid", "description": "Primary key", "businessAliases": [] },
+        { "name": "conversation_id", "type": "uuid", "description": "Foreign key to the parent conversation", "businessAliases": [] },
+        { "name": "compiler", "type": "text", "description": "Compiler used (sql, markdown, html)", "businessAliases": ["output type", "format"] },
+        { "name": "dialect", "type": "text", "description": "SQL dialect or output variant", "businessAliases": ["variant"] },
+        { "name": "created_at", "type": "timestamptz", "description": "When the output was generated", "businessAliases": ["generation time"] }
+      ]
+    }
+  ],
+  "relationships": [
+    { "fromTable": "conversations", "fromColumn": "project_id", "toTable": "projects", "toColumn": "id" },
+    { "fromTable": "conversation_turns", "fromColumn": "conversation_id", "toTable": "conversations", "toColumn": "id" },
+    { "fromTable": "output_bundles", "fromColumn": "conversation_id", "toTable": "conversations", "toColumn": "id" }
+  ],
+  "businessTerms": {
+    "active projects": "projects where deleted_at is null",
+    "deleted projects": "projects where deleted_at is not null",
+    "conversation length": "number of turns in a conversation",
+    "user activity": "number of conversations started by a user",
+    "completed conversations": "conversations with state Done",
+    "pending conversations": "conversations not yet in Done state"
+  },
+  "calculationLibrary": {
+    "active_project_count": {
+      "expression": "COUNT(*) FILTER (WHERE deleted_at IS NULL)",
+      "description": "Number of non-deleted projects",
+      "appliesTo": ["projects"]
+    },
+    "avg_turns_per_conversation": {
+      "expression": "AVG(turn_count) FROM (SELECT conversation_id, COUNT(*) AS turn_count FROM conversation_turns GROUP BY conversation_id)",
+      "description": "Average number of turns per conversation",
+      "appliesTo": ["conversation_turns"]
+    },
+    "conversations_per_project": {
+      "expression": "COUNT(*) GROUP BY project_id",
+      "description": "Number of conversations grouped by project",
+      "appliesTo": ["conversations"]
+    },
+    "output_count_by_compiler": {
+      "expression": "COUNT(*) GROUP BY compiler",
+      "description": "Number of outputs grouped by compiler type",
+      "appliesTo": ["output_bundles"]
+    },
+    "daily_conversation_count": {
+      "expression": "COUNT(*) GROUP BY DATE(created_at)",
+      "description": "Number of conversations started per day",
+      "appliesTo": ["conversations"]
+    }
+  },
+  "glossary": {
+    "chat": "conversations",
+    "message": "conversation_turns",
+    "turn": "conversation_turns",
+    "result": "output_bundles",
+    "output": "output_bundles",
+    "project": "projects"
+  },
+  "permissionRules": []
+}
